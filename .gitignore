@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editors/OS
+.DS_Store
+.idea/
+.vscode/
+.ipynb_checkpoints/
+*.log
+logs/
+
+# Environment files (secrets)
+.env
+.env.*
+*.env
+
+# Build/coverage
+build/
+dist/
+.coverage
+coverage.xml
+
+# Caches
+.cache/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Data outputs and indices
+data/processed/
+vector_store/
+*.faiss
+*.jsonl

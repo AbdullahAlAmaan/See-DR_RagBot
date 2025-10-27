@@ -1,0 +1,104 @@
+# See-DR RAGBot Fullstack Architecture
+project: see-dr-ragbot
+version: 1.0
+last_updated: 2025-10-27
+
+## 1. System Overview
+description: |
+  A closed-domain Retrieval-Augmented Generation (RAG) pipeline focused on
+  diabetic retinopathy (DR) research. The system ingests ~20 research papers,
+  extracts layout-aware text, embeds and stores semantic chunks, and serves
+  grounded responses through a local LLM (WizardLM-2 via Ollama).
+
+## 2. Core Pipeline
+flow:
+  - step: PDF Ingestion
+    tools:
+      - pdfplumber
+      - unstructured
+      - HuggingFace LayoutLMv3
+    output: Clean structured text with layout metadata (headings, sections, captions).
+
+  - step: Semantic Chunking
+    tools:
+      - custom recursive semantic splitter
+    logic: |
+      Split text by semantic coherence and token length (~500–800 tokens).
+      Retain section titles for context preservation.
+
+  - step: Embedding + Storage
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2
+    alt_embedding_model: dmis-lab/biobert-base-cased-v1.2
+    vector_db: FAISS (flat index) or Chroma
+    metadata: [title, authors, doi, section, page_number]
+
+  - step: Retrieval & Reranking
+    retriever: cosine similarity (k=10)
+    reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
+    output: top-k ranked context chunks
+
+  - step: Generation
+    llm:
+      name: wizardlm2
+      provider: ollama
+      prompt_template: |
+        You are See-DR, a RAG assistant specialized in diabetic retinopathy.
+        Use only the provided sources. Include citations.
+    output: grounded natural language response with citations.
+
+  - step: Post-Processing (optional)
+    verifier: |
+      - entailment model (microsoft/deberta-base-mnli)
+      - cosine-similarity check between generated and retrieved text.
+    result: final response + confidence score.
+
+## 3. Components
+backend:
+  framework: FastAPI
+  endpoints:
+    - /ingest
+    - /query
+    - /evaluate
+  integration: local Ollama HTTP API
+
+frontend:
+  framework: Streamlit
+  features:
+    - query input box
+    - source citations panel
+    - similarity score visualization
+    - local embedding upload interface
+
+storage:
+  embeddings: ./vector_store/
+  metadata: SQLite or JSON index
+  pdf_cache: ./data/raw_pdfs/
+
+## 4. Deployment
+environment:
+  mode: local
+  llm: ollama run wizardlm2
+  requirements:
+    - Python >= 3.10
+    - CUDA optional for embeddings
+    - memory >= 8GB
+  startup:
+    - load vector DB
+    - start FastAPI backend
+    - serve Streamlit frontend
+
+## 5. Evaluation
+metrics:
+  - Retrieval Precision@5
+  - Faithfulness score (cosine)
+  - Citation coverage
+  - Latency p95
+evaluation_script: ./eval/evaluate_retrieval.py
+
+## 6. Future Extensions
+extensions:
+  - Add LayoutLM fine-tuning for medical layout adaptation.
+  - Integrate post-generation verifier (Phi-3-mini or DeBERTa-MNLI).
+  - Add multi-modal pipeline with CLIP for figure caption alignment.
+  - Enable optional cloud mode using OpenAI/Gemini APIs for comparative analysis.
+

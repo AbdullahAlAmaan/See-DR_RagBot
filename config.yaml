@@ -9,8 +9,9 @@ models:
   llm_model: "wizardlm2"
 
 retrieval:
-  top_k: 5
-  rerank_top_n: 10
+  top_k: 8
+  rerank_top_n: 20
+  min_similarity_score: 0.3
 
 chunking:
   target_tokens: 600

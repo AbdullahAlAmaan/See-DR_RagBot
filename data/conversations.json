@@ -1,0 +1,154 @@
+[
+  {
+    "question": "what is see dr",
+    "answer": " See-DR refers to an artificial intelligence system specialized in diabetic retinopathy (DR), which is a condition where elevated blood glucose levels in individuals with diabetes damage the retinal blood vessels, potentially leading to vision loss and blindness. DR is a significant public health concern, affecting approximately 30% of the 463 million people worldwide diagnosed with diabetes. It can occur in any stage of diabetes and is more prevalent in younger patients with type 1 DM, as well as in older and obese patients with type 2 DM. Gestational diabetes during pregnancy can also pose risks for both mother and child. DR is characterized by symptoms like hemorrhages and microaneurysms and can lead to blindness if not managed properly [sensors-23-05726, p. 2, 3; peerj-cs-10-1947, p. 2].",
+    "sources": [
+      {
+        "id": 5131,
+        "text": "DR primarily affects the eye retina, which is responsible for capturing light and transmitting signals to the brain. Like other parts of the body, the retina is also supplied with blood vessels. The elevated blood glucose levels in diabetes can lead to dam- age and alteration of the retinal blood vessels, resulting in fluid leakage [6]. Consequently, these pathological changes can lead to vision loss and, in some cases, permanent visual impairment [7]. Given these implications, DR is a highly significant and serious disease. According to statistics [4], out of the 463 million individuals diagnosed with diabetes worldwide, approximately 30% also experience DR. This disease demonstrates a progres- sive nature, highlighting the importance of timely diagnosis and treatment to prevent permanent vision loss [8]. DR can be categorized into two subtypes: nonproliferative DR (NPDR) and proliferative DR (PDR). NPDR encompasses lesions such as microaneurysms and exudates [9]. Patients with DR exhibit various signs, as illustrated in Regular screening of the retina is crucial for detecting DR, especially considering its asymptomatic nature in the early stages. Ophthalmologists typically rely on manual grading for this purpose. During the screening process, the patient’s pupil is dilated using specific eye drops, enabling the ophthalmologist to examine the retina using specialized lenses and lighting techniques. However, it is important to note that this procedure demands special expertise and experience to ensure accurate diagnosis.",
+        "metadata": {
+          "chunk_id": 12,
+          "start_sentence": 64,
+          "end_sentence": 76,
+          "num_sentences": 13,
+          "doc_id": "8ae634ab407c26158f3a7d1189db1490bf4e63da",
+          "title": "sensors-23-05726",
+          "filename": "sensors-23-05726.pdf",
+          "page_number": 2
+        }
+      },
+      {
+        "id": 454,
+        "text": "Type 2 is more prevalent in older and obese patients due to insulin resistance. Gestational diabetes, which occurs during pregnancy, affects glucose cell use and can harm both the mother and the unborn child. It is primarily caused by hyperglycemia (Aslan & Sabanci, 2023; Sivaranjani et al. , 2021). DR is a condition that can lead to blindness in working-age people due to microvascular complications of diabetes. This condition can be prevented, and it is characterized by hemorrhages, microaneurysms, and changes in the retinal microvasculature. There are various treatment options available for retinal conditions, including anti-vascular endothelial growth factor (anti-VEGF) injections, vitrectomy, laser photocoagulation, neuroprotective drugs, and stem cell therapy for retinal regeneration Salamat, Missen & Rashid (2019). Before the advent of ML techniques, medical professionals predominantly relied on manual fundus image assessment and traditional methods for diagnosing DR. Several non-ML techniques are still employed for DR detection. Doctors utilize specialized cameras to capture high-resolution color photographs of the retina, revealing blood vessels, optic nerves, and other retinal components. Fluorescent dye injections highlight blood vessels, aiding in identifying leaky spots and abnormal blood vessel development (Barros et al. , 2020). Fundus photography provides detailed information, while optical coherence tomography (OCT) offers cross-sectional images, aiding in determining retinal layers and Bhulakshmi and Rajput (2024), PeerJ Comput.",
+        "metadata": {
+          "chunk_id": 19,
+          "start_sentence": 36,
+          "end_sentence": 48,
+          "num_sentences": 13,
+          "doc_id": "146ff1f1f4b646260afbd79e5e4468c0e503aa0d",
+          "title": "peerj-cs-10-1947",
+          "filename": "peerj-cs-10-1947.pdf",
+          "page_number": 2
+        }
+      },
+      {
+        "id": 1283,
+        "text": "PREVALENCE AND CLINICAL CHALLENGE OF DR DR is an ever-rising public health problem, with the increasing burden of DR-related visual impairment and blindness [29-32]. Many epidemiologic studies state that DR is more frequent in younger patients with type 1 DM. Thus, DR is a burden to the socio-economic system, owing to its significant impact on the global workforce[33]. The prevalence of DR in pediatric age groups is variable. Few studies have published that mild DR occurs in children, with the duration of the disease as short as 1–2 years. However, many studies reveal that the duration is 3 years or more, with the typical duration being 8–10 years before the inception of retinopathy[34-37]. Among adults, the prevalence of DR has been found to range from 4%–32% in various studies[38-46]. The International Centre for Eye Health, London, has included the prevalence of DR in the Rapid Assessment of Avoidable Blindness (RAAB + DR) study, as a much faster and less expensive way to determine the burden of diabetes and DR in the over-50 population. This will help plan and prioritize diabetic eye care services to that population group, for early detection and treatment of the disease[34]. RISK FACTORS Development of DR is proportionate to the age of the patient, the duration of diabetes, poor glycemic control, and fluctuating serum lipid and blood pressure levels. The etiological risk factors for DR are shown in PATHOPHYSIOLOGY OF DR Although the core pathophysiological factor responsible for the development of DR is hyperglycemia, the natural history of DR arises from increased vascular perfusion and leakage, retinal inflammation, edema, expression of cytokines and cell adhesion molecules, glial reaction, apoptosis of the inner retinal structures, and neovessel formation ()[47]. Hyperglycemia Hyperglycemia is a primary biochemical disturbance of diabetes and implies an increased level of plasma glucose owing to insulin inadequacy. Various metabolic pathways have been involved in hyperglycemia-induced vascular changes, including advanced glycation end products (AGEs) accumulation, the polyol pathway, and the protein kinase C (PKC) pathway.",
+        "metadata": {
+          "chunk_id": 59,
+          "start_sentence": 56,
+          "end_sentence": 68,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 3
+        }
+      },
+      {
+        "id": 5132,
+        "text": "Like other parts of the body, the retina is also supplied with blood vessels. The elevated blood glucose levels in diabetes can lead to dam- age and alteration of the retinal blood vessels, resulting in fluid leakage [6]. Consequently, these pathological changes can lead to vision loss and, in some cases, permanent visual impairment [7]. Given these implications, DR is a highly significant and serious disease. According to statistics [4], out of the 463 million individuals diagnosed with diabetes worldwide, approximately 30% also experience DR. This disease demonstrates a progres- sive nature, highlighting the importance of timely diagnosis and treatment to prevent permanent vision loss [8]. DR can be categorized into two subtypes: nonproliferative DR (NPDR) and proliferative DR (PDR). NPDR encompasses lesions such as microaneurysms and exudates [9]. Patients with DR exhibit various signs, as illustrated in Regular screening of the retina is crucial for detecting DR, especially considering its asymptomatic nature in the early stages. Ophthalmologists typically rely on manual grading for this purpose. During the screening process, the patient’s pupil is dilated using specific eye drops, enabling the ophthalmologist to examine the retina using specialized lenses and lighting techniques. However, it is important to note that this procedure demands special expertise and experience to ensure accurate diagnosis. Diabetic retinopathy.",
+        "metadata": {
+          "chunk_id": 13,
+          "start_sentence": 65,
+          "end_sentence": 77,
+          "num_sentences": 13,
+          "doc_id": "8ae634ab407c26158f3a7d1189db1490bf4e63da",
+          "title": "sensors-23-05726",
+          "filename": "sensors-23-05726.pdf",
+          "page_number": 2
+        }
+      },
+      {
+        "id": 5133,
+        "text": "The elevated blood glucose levels in diabetes can lead to dam- age and alteration of the retinal blood vessels, resulting in fluid leakage [6]. Consequently, these pathological changes can lead to vision loss and, in some cases, permanent visual impairment [7]. Given these implications, DR is a highly significant and serious disease. According to statistics [4], out of the 463 million individuals diagnosed with diabetes worldwide, approximately 30% also experience DR. This disease demonstrates a progres- sive nature, highlighting the importance of timely diagnosis and treatment to prevent permanent vision loss [8]. DR can be categorized into two subtypes: nonproliferative DR (NPDR) and proliferative DR (PDR). NPDR encompasses lesions such as microaneurysms and exudates [9]. Patients with DR exhibit various signs, as illustrated in Regular screening of the retina is crucial for detecting DR, especially considering its asymptomatic nature in the early stages. Ophthalmologists typically rely on manual grading for this purpose. During the screening process, the patient’s pupil is dilated using specific eye drops, enabling the ophthalmologist to examine the retina using specialized lenses and lighting techniques. However, it is important to note that this procedure demands special expertise and experience to ensure accurate diagnosis. Diabetic retinopathy. With advancements in healthcare technologies, computer-aided diagnosis (CAD) sys- tems have emerged as valuable tools for the rapid diagnosis of various diseases, including DR [10].",
+        "metadata": {
+          "chunk_id": 14,
+          "start_sentence": 66,
+          "end_sentence": 78,
+          "num_sentences": 13,
+          "doc_id": "8ae634ab407c26158f3a7d1189db1490bf4e63da",
+          "title": "sensors-23-05726",
+          "filename": "sensors-23-05726.pdf",
+          "page_number": 2
+        }
+      }
+    ]
+  },
+  {
+    "question": "how to treat dr",
+    "answer": "1. Treatment for diabetic retinopathy (DR) involves expanding therapeutic targets beyond just vascular leakage and neovascularization to include neuroprotection and intraretinal revascularization [95881, p. 11].\n\n2. Epigenetic modifications related to metabolic memory are recognized as a pathogenic process in DR, making them a target for new treatments [95881, p. 11].\n\n3. Topical drug formulations that can penetrate the retina are being explored as a means to reduce systemic side effects and allow for self-administration of treatments over extended periods [95881, p. 11].\n\n4. The selection of articles on DR was made based on their relevance, recency, and impact on understanding and managing the condition, including recent reviews, meta-analyses, clinical trials, and studies on new treatment modalities like anti-VEGF therapies and corticosteroids [95881, p. 3].\n\n5. The articles also cover basic science research into the neurodegenerative aspects of DR and the function of the neurovascular unit [95881, p. 3].",
+    "sources": [
+      {
+        "id": 1439,
+        "text": "Broadening treatments beyond direct suppression of pathologic vascular changes may have more benefits. Recognizing DR as a disease of the neurovascular unit highlights the need to expand therapeutic targets. Broadening the focus beyond just vascular leakage and neovascularization to include neuroprotection and intraretinal revascularization would set ambitious goals for DR treatment. The idea that epigenetic modifications related to metabolic memory play a role in DR is another pathogenic process deserving of therapeutic focus [100]. Topical drug formulations capable of penetrating the retina could reduce systemic side effects and enable patients to self-administer treatments over extended periods. These novel therapeutic approaches demonstrate promising advancements. Future strategies hold the potential to significantly revolutionize the management of DR with even more innovative solutions. FUTURE APPROACHES TO DR Artificial intelligence in DR Artificial intelligence (AI) is becoming popular in diagnosing fundus images using the basic convolutional neural network, as it is more sensitive and specific for the diagnosis of DR in comparison with human capabilities. Studies have also reported that AI systems can perform automated grading of DR. IDxDR is the first United States Food and Drug Administration (FDA)-approved commercially available DR detection and referral system. This system uses lesion-based grading with a sensitivity of approximately 80%, but with a specificity of less than 90%[101]. Although it is an effective tool, it remains less popular because of the high cost and bulky size. Morya et al[101] have shown that the first smartphone-based online annotation tool for DR and common retinal disorders is very effective for faster and more accurate image labeling, using AI-based deep learning (DL) for DR ().",
+        "metadata": {
+          "chunk_id": 215,
+          "start_sentence": 231,
+          "end_sentence": 243,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 11
+        }
+      },
+      {
+        "id": 1440,
+        "text": "Recognizing DR as a disease of the neurovascular unit highlights the need to expand therapeutic targets. Broadening the focus beyond just vascular leakage and neovascularization to include neuroprotection and intraretinal revascularization would set ambitious goals for DR treatment. The idea that epigenetic modifications related to metabolic memory play a role in DR is another pathogenic process deserving of therapeutic focus [100]. Topical drug formulations capable of penetrating the retina could reduce systemic side effects and enable patients to self-administer treatments over extended periods. These novel therapeutic approaches demonstrate promising advancements. Future strategies hold the potential to significantly revolutionize the management of DR with even more innovative solutions. FUTURE APPROACHES TO DR Artificial intelligence in DR Artificial intelligence (AI) is becoming popular in diagnosing fundus images using the basic convolutional neural network, as it is more sensitive and specific for the diagnosis of DR in comparison with human capabilities. Studies have also reported that AI systems can perform automated grading of DR. IDxDR is the first United States Food and Drug Administration (FDA)-approved commercially available DR detection and referral system. This system uses lesion-based grading with a sensitivity of approximately 80%, but with a specificity of less than 90%[101]. Although it is an effective tool, it remains less popular because of the high cost and bulky size. Morya et al[101] have shown that the first smartphone-based online annotation tool for DR and common retinal disorders is very effective for faster and more accurate image labeling, using AI-based deep learning (DL) for DR (). The DL algorithm creates a binary classification system for diabetic retinopathy referrals based on whether a patient’s retinal image indicates the presence of referable DR.",
+        "metadata": {
+          "chunk_id": 216,
+          "start_sentence": 232,
+          "end_sentence": 244,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 11
+        }
+      },
+      {
+        "id": 1441,
+        "text": "Broadening the focus beyond just vascular leakage and neovascularization to include neuroprotection and intraretinal revascularization would set ambitious goals for DR treatment. The idea that epigenetic modifications related to metabolic memory play a role in DR is another pathogenic process deserving of therapeutic focus [100]. Topical drug formulations capable of penetrating the retina could reduce systemic side effects and enable patients to self-administer treatments over extended periods. These novel therapeutic approaches demonstrate promising advancements. Future strategies hold the potential to significantly revolutionize the management of DR with even more innovative solutions. FUTURE APPROACHES TO DR Artificial intelligence in DR Artificial intelligence (AI) is becoming popular in diagnosing fundus images using the basic convolutional neural network, as it is more sensitive and specific for the diagnosis of DR in comparison with human capabilities. Studies have also reported that AI systems can perform automated grading of DR. IDxDR is the first United States Food and Drug Administration (FDA)-approved commercially available DR detection and referral system. This system uses lesion-based grading with a sensitivity of approximately 80%, but with a specificity of less than 90%[101]. Although it is an effective tool, it remains less popular because of the high cost and bulky size. Morya et al[101] have shown that the first smartphone-based online annotation tool for DR and common retinal disorders is very effective for faster and more accurate image labeling, using AI-based deep learning (DL) for DR (). The DL algorithm creates a binary classification system for diabetic retinopathy referrals based on whether a patient’s retinal image indicates the presence of referable DR. A team of 32 retinal specialists, eight IIT engineers, and supporting staff used the tool for over 200,000 images.",
+        "metadata": {
+          "chunk_id": 217,
+          "start_sentence": 233,
+          "end_sentence": 245,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 11
+        }
+      },
+      {
+        "id": 1278,
+        "text": "” These keywords were selected to cover critical aspects of DR, ensuring a focused and detailed examination of the condition’s underlying mechanisms and treatment strategies. We diligently used Reference Citation Analysis to search the articles, based on the Impact Index per article. Five independent reviewers selected the latest highlighted articles, based on their relevance, recency, and impact on the understanding and management of DR. This selection includes recent reviews and meta-analyses that offer compre- hensive overviews, clinical trials, studies on new treatment modalities like anti-VEGF therapies and corticosteroids, and basic science research that delves into the neurodegenerative aspects of DR and the function of the neurovascular unit. Additionally, articles discussing technological advances in diagnosing and managing DR, particularly the use of artificial intelligence in retinal imaging, were included. All articles published in English were included. PREVALENCE AND CLINICAL CHALLENGE OF DR DR is an ever-rising public health problem, with the increasing burden of DR-related visual impairment and blindness [29-32]. Many epidemiologic studies state that DR is more frequent in younger patients with type 1 DM. Thus, DR is a burden to the socio-economic system, owing to its significant impact on the global workforce[33]. The prevalence of DR in pediatric age groups is variable. Few studies have published that mild DR occurs in children, with the duration of the disease as short as 1–2 years. However, many studies reveal that the duration is 3 years or more, with the typical duration being 8–10 years before the inception of retinopathy[34-37]. Among adults, the prevalence of DR has been found to range from 4%–32% in various studies[38-46].",
+        "metadata": {
+          "chunk_id": 54,
+          "start_sentence": 50,
+          "end_sentence": 62,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 3
+        }
+      },
+      {
+        "id": 1280,
+        "text": "Five independent reviewers selected the latest highlighted articles, based on their relevance, recency, and impact on the understanding and management of DR. This selection includes recent reviews and meta-analyses that offer compre- hensive overviews, clinical trials, studies on new treatment modalities like anti-VEGF therapies and corticosteroids, and basic science research that delves into the neurodegenerative aspects of DR and the function of the neurovascular unit. Additionally, articles discussing technological advances in diagnosing and managing DR, particularly the use of artificial intelligence in retinal imaging, were included. All articles published in English were included. PREVALENCE AND CLINICAL CHALLENGE OF DR DR is an ever-rising public health problem, with the increasing burden of DR-related visual impairment and blindness [29-32]. Many epidemiologic studies state that DR is more frequent in younger patients with type 1 DM. Thus, DR is a burden to the socio-economic system, owing to its significant impact on the global workforce[33]. The prevalence of DR in pediatric age groups is variable. Few studies have published that mild DR occurs in children, with the duration of the disease as short as 1–2 years. However, many studies reveal that the duration is 3 years or more, with the typical duration being 8–10 years before the inception of retinopathy[34-37]. Among adults, the prevalence of DR has been found to range from 4%–32% in various studies[38-46]. The International Centre for Eye Health, London, has included the prevalence of DR in the Rapid Assessment of Avoidable Blindness (RAAB + DR) study, as a much faster and less expensive way to determine the burden of diabetes and DR in the over-50 population. This will help plan and prioritize diabetic eye care services to that population group, for early detection and treatment of the disease[34].",
+        "metadata": {
+          "chunk_id": 56,
+          "start_sentence": 52,
+          "end_sentence": 64,
+          "num_sentences": 13,
+          "doc_id": "9b3d3f795d67201a2f65f19f96e13a7871bb39e1",
+          "title": "95881",
+          "filename": "95881.pdf",
+          "page_number": 3
+        }
+      }
+    ]
+  }
+]

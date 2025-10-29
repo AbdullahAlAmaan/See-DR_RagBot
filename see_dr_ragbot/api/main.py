@@ -42,14 +42,31 @@ async def ingest() -> Dict:
 
 @app.post("/query", response_model=QueryResponse)
 async def query(req: QueryRequest) -> QueryResponse:
+	from ..ingestion.text_cleaner import clean_chunk_text
+	
 	cfg: AppConfig = app.state.cfg
 	index, metadata = load_faiss_index(cfg)
 	retriever = Retriever(cfg, index, metadata)
-	top = retriever.retrieve(req.query, top_k=req.k)
+	
+	# Expand query for treatment-related questions to improve retrieval
+	expanded_query = req.query
+	query_lower = req.query.lower()
+	if any(word in query_lower for word in ['treat', 'treatment', 'therapy', 'cure', 'medication', 'drug', 'procedure']):
+		expanded_query = f"{req.query} treatment methods procedures medications therapies"
+	
+	top = retriever.retrieve(expanded_query, top_k=req.k)
 	prompt = build_prompt(req.query, top)
 	client = OllamaClient(cfg)
-	answer = await client.generate(prompt)
-	return QueryResponse(answer=answer, sources=top)
+	answer = await client.generate(prompt, max_tokens=500)  # Limit answer length
+	
+	# Clean sources for display
+	cleaned_sources = []
+	for source in top:
+		cleaned = dict(source)
+		cleaned["text"] = clean_chunk_text(source.get("text", ""))
+		cleaned_sources.append(cleaned)
+	
+	return QueryResponse(answer=answer, sources=cleaned_sources)
 
 
 @app.post("/evaluate")

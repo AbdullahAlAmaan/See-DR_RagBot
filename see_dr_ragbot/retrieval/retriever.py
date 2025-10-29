@@ -25,14 +25,27 @@ class Retriever:
 		k = top_k or self.cfg.retrieval.top_k
 		q = self.embedder.embed_texts([query])
 		faiss.normalize_L2(q)
-		dists, idxs = self.index.search(q, max(k, self.cfg.retrieval.rerank_top_n))
-		cand_ids = idxs[0].tolist()
-		cands = [self.metadata[i] for i in cand_ids if i >= 0]
+		
+		# Retrieve more candidates for reranking
+		rerank_n = self.cfg.retrieval.rerank_top_n
+		dists, idxs = self.index.search(q, rerank_n)
+		
+		# Filter by similarity threshold if configured
+		min_sim = getattr(self.cfg.retrieval, 'min_similarity_score', 0.0)
+		cand_ids = []
+		for dist, idx in zip(dists[0], idxs[0]):
+			if idx >= 0 and (1.0 - dist) >= min_sim:  # Convert distance to similarity
+				cand_ids.append(idx)
+		
+		cands = [self.metadata[i] for i in cand_ids]
 
-		# optional reranking
+		# Optional reranking for better relevance
 		if self.reranker is not None and len(cands) > k:
 			pairs = [(query, c.get("text", "")) for c in cands]
 			scores = self.reranker.predict(pairs).tolist()
 			scored = sorted(zip(cands, scores), key=lambda x: x[1], reverse=True)
+			# Return top k after reranking
 			return [c for c, _ in scored[:k]]
+		
+		# Return top k without reranking
 		return cands[:k]

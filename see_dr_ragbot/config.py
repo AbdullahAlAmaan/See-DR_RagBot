@@ -27,6 +27,7 @@ class ModelsConfig:
 class RetrievalConfig:
 	top_k: int
 	rerank_top_n: int
+	min_similarity_score: float = 0.0
 
 
 @dataclass

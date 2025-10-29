@@ -14,6 +14,7 @@ except Exception:
 from ..chunking import recursive_chunk, semantic_chunk_with_overlap
 from ..config import AppConfig
 from ..logging_utils import get_logger
+from .text_cleaner import clean_text, clean_chunk_text
 
 try:
     from .layoutlm_extractor import extract_with_layoutlm
@@ -95,6 +96,12 @@ def build_doc_record(path: str) -> Dict:
 	filename = os.path.basename(path)
 	doc_id = _sha1(path)
 	full_text, page_elements = extract_pdf(path)
+	# Clean the full text
+	full_text = clean_text(full_text)
+	# Clean page-level elements too
+	for page_elem in page_elements:
+		if "text" in page_elem:
+			page_elem["text"] = clean_text(page_elem["text"])
 	return {
 		"id": doc_id,
 		"filename": filename,
@@ -121,8 +128,9 @@ def chunk_document(doc: Dict, cfg: AppConfig, use_semantic: bool = True) -> List
 				cfg=cfg,
 				similarity_threshold=cfg.chunking.similarity_threshold,
 			)
-			# Merge base metadata into each chunk
+			# Merge base metadata into each chunk and clean chunk text
 			for ch in chunks:
+				ch["text"] = clean_chunk_text(ch.get("text", ""))
 				ch["metadata"] = {**ch.get("metadata", {}), **base}
 		except Exception as e:
 			logger.warning(f"Semantic chunking failed: {e}, falling back to basic chunker")
@@ -137,6 +145,9 @@ def chunk_document(doc: Dict, cfg: AppConfig, use_semantic: bool = True) -> List
 			min_tokens=cfg.chunking.min_tokens,
 			metadata=base,
 		)
+		# Clean chunk texts
+		for ch in chunks:
+			ch["text"] = clean_chunk_text(ch.get("text", ""))
 	
 	# Enrich with page hints via simple overlap heuristic
 	for ch in chunks:

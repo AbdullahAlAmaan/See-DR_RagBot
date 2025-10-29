@@ -1,0 +1,93 @@
+# CodeRabbit Configuration for See-DR RAGBot
+# Focused on security and code quality reviews
+
+language: python
+
+# Review focus areas
+review:
+  focus:
+    - security
+    - performance
+    - maintainability
+    - best_practices
+
+# Security checks
+security:
+  enabled: true
+  # Check for common security issues
+  checks:
+    - sql_injection
+    - path_traversal
+    - command_injection
+    - insecure_random
+    - hardcoded_secrets
+    - authentication_issues
+    - authorization_issues
+    - data_exposure
+    - xss
+    - csrf
+
+# Code quality checks
+quality:
+  enabled: true
+  checks:
+    - code_smells
+    - complexity
+    - duplication
+    - test_coverage
+
+# Path-specific settings
+paths:
+  # API endpoints - high security priority
+  - path: "see_dr_ragbot/api/"
+    security: high
+    focus:
+      - input_validation
+      - authentication
+      - data_exposure
+      - injection_attacks
+  
+  # Ingestion - check for file handling vulnerabilities
+  - path: "see_dr_ragbot/ingestion/"
+    security: high
+    focus:
+      - path_traversal
+      - file_handling
+      - resource_limits
+  
+  # UI - check for XSS and input handling
+  - path: "see_dr_ragbot/ui/"
+    security: high
+    focus:
+      - xss
+      - input_sanitization
+      - csrf
+  
+  # Config - check for secrets
+  - path: "*.yaml"
+    security: high
+    focus:
+      - hardcoded_secrets
+      - sensitive_data
+
+# Exclude patterns (don't review these)
+exclude:
+  - "data/"
+  - "vector_store/"
+  - ".venv/"
+  - "*.faiss"
+  - "*.jsonl"
+  - "__pycache__/"
+
+# Chat settings
+chat:
+  enabled: true
+  suggestions:
+    - Always check for hardcoded API keys or secrets
+    - Verify input validation on all user inputs
+    - Check file path handling for directory traversal
+    - Ensure environment variables are used for sensitive config
+    - Review API endpoints for proper authentication/authorization
+    - Check for SQL injection in any database queries
+    - Verify XSS protection in UI components
+

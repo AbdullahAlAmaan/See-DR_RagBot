@@ -34,6 +34,8 @@ class ChunkingConfig:
 	target_tokens: int
 	max_tokens: int
 	min_tokens: int
+	overlap_percent: int = 20
+	similarity_threshold: float = 0.65
 
 
 @dataclass

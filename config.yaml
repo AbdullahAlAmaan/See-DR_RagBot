@@ -16,6 +16,8 @@ chunking:
   target_tokens: 600
   max_tokens: 800
   min_tokens: 200
+  overlap_percent: 20  # 15-25% recommended
+  similarity_threshold: 0.65  # 0.6-0.7 for semantic breaks
 
 environment:
   offline: true

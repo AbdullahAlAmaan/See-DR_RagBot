@@ -1,4 +1,12 @@
 import argparse
+import sys
+import os
+
+# Ensure repository root is on sys.path
+REPO_ROOT = os.path.dirname(os.path.dirname(__file__))
+if REPO_ROOT not in sys.path:
+	sys.path.insert(0, REPO_ROOT)
+
 from see_dr_ragbot.config import load_config, ensure_directories
 from see_dr_ragbot.ingestion.ingest import ingest_directory
 from see_dr_ragbot.vector_store.faiss_store import build_faiss_index

@@ -11,9 +11,15 @@ try:
 except Exception:
 	_UNSTRUCTURED_AVAILABLE = False
 
-from ..chunking import recursive_chunk
+from ..chunking import recursive_chunk, semantic_chunk_with_overlap
 from ..config import AppConfig
 from ..logging_utils import get_logger
+
+try:
+    from .layoutlm_extractor import extract_with_layoutlm
+    _LAYOUTLM_AVAILABLE = True
+except Exception:
+    _LAYOUTLM_AVAILABLE = False
 
 
 logger = get_logger(__name__)
@@ -70,6 +76,14 @@ def extract_with_pdfplumber(path: str) -> Tuple[str, List[Dict]]:
 
 
 def extract_pdf(path: str) -> Tuple[str, List[Dict]]:
+	# Try LayoutLMv3 first (layout-aware), then unstructured, then pdfplumber
+	if _LAYOUTLM_AVAILABLE:
+		try:
+			logger.info(f"Using LayoutLMv3 for {os.path.basename(path)}")
+			return extract_with_layoutlm(path)
+		except Exception as e:
+			logger.debug(f"LayoutLMv3 failed: {e}, falling back...")
+	
 	try:
 		return extract_with_unstructured(path)
 	except Exception:
@@ -92,20 +106,39 @@ def build_doc_record(path: str) -> Dict:
 	}
 
 
-def chunk_document(doc: Dict, cfg: AppConfig) -> List[Dict]:
+def chunk_document(doc: Dict, cfg: AppConfig, use_semantic: bool = True) -> List[Dict]:
 	base = {
 		"doc_id": doc["id"],
 		"title": doc["title"],
 		"filename": doc["filename"],
 	}
-	chunks = recursive_chunk(
-		text=doc.get("text", ""),
-		target_tokens=cfg.chunking.target_tokens,
-		max_tokens=cfg.chunking.max_tokens,
-		min_tokens=cfg.chunking.min_tokens,
-		metadata=base,
-	)
-	# enrich with page hints via simple overlap heuristic
+	
+	if use_semantic:
+		# Use semantic chunking with overlap
+		try:
+			chunks = semantic_chunk_with_overlap(
+				text=doc.get("text", ""),
+				cfg=cfg,
+				similarity_threshold=cfg.chunking.similarity_threshold,
+			)
+			# Merge base metadata into each chunk
+			for ch in chunks:
+				ch["metadata"] = {**ch.get("metadata", {}), **base}
+		except Exception as e:
+			logger.warning(f"Semantic chunking failed: {e}, falling back to basic chunker")
+			use_semantic = False
+	
+	if not use_semantic:
+		# Fallback to basic chunker
+		chunks = recursive_chunk(
+			text=doc.get("text", ""),
+			target_tokens=cfg.chunking.target_tokens,
+			max_tokens=cfg.chunking.max_tokens,
+			min_tokens=cfg.chunking.min_tokens,
+			metadata=base,
+		)
+	
+	# Enrich with page hints via simple overlap heuristic
 	for ch in chunks:
 		ch_text = ch["text"]
 		best_page = None
@@ -118,7 +151,9 @@ def chunk_document(doc: Dict, cfg: AppConfig) -> List[Dict]:
 			if overlap > best_overlap:
 				best_overlap = overlap
 				best_page = page.get("metadata", {}).get("page_number")
-		ch["metadata"]["page_number"] = best_page
+		if best_page:
+			ch["metadata"]["page_number"] = best_page
+	
 	return chunks
 
 

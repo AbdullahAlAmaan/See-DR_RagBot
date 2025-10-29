@@ -40,3 +40,4 @@ data/processed/
 vector_store/
 *.faiss
 *.jsonl
+data/conversations.json

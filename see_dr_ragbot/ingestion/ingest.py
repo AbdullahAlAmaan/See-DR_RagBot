@@ -27,10 +27,26 @@ logger = get_logger(__name__)
 
 
 def _sha1(s: str) -> str:
+	"""Generate SHA1 hash of a string.
+	
+	Args:
+		s: Input string to hash.
+		
+	Returns:
+		Hexadecimal representation of the SHA1 hash.
+	"""
 	return hashlib.sha1(s.encode("utf-8")).hexdigest()
 
 
 def list_pdf_files(pdf_dir: str) -> List[str]:
+	"""List all PDF files in a directory.
+	
+	Args:
+		pdf_dir: Directory path to search for PDF files.
+		
+	Returns:
+		Sorted list of full paths to PDF files found in the directory.
+	"""
 	paths: List[str] = []
 	for name in os.listdir(pdf_dir):
 		if name.lower().endswith(".pdf"):
@@ -39,6 +55,22 @@ def list_pdf_files(pdf_dir: str) -> List[str]:
 
 
 def extract_with_unstructured(path: str) -> Tuple[str, List[Dict]]:
+	"""Extract text from PDF using the unstructured library.
+	
+	Uses high-resolution extraction strategy with table structure inference
+	for better layout-aware text extraction.
+	
+	Args:
+		path: Path to the PDF file.
+		
+	Returns:
+		Tuple of:
+			- full_text: Complete extracted text as a single string.
+			- page_level: List of page-level text chunks with metadata.
+			
+	Raises:
+		RuntimeError: If unstructured library is not available.
+	"""
 	if not _UNSTRUCTURED_AVAILABLE:
 		raise RuntimeError("unstructured not available")
 	elements = partition_pdf(filename=path, strategy="hi_res", infer_table_structure=True)
@@ -59,6 +91,18 @@ def extract_with_unstructured(path: str) -> Tuple[str, List[Dict]]:
 
 
 def extract_with_pdfplumber(path: str) -> Tuple[str, List[Dict]]:
+	"""Extract text from PDF using pdfplumber library (fallback method).
+	
+	Extracts text page by page with tolerance settings for better text recovery.
+	
+	Args:
+		path: Path to the PDF file.
+		
+	Returns:
+		Tuple of:
+			- full_text: Complete extracted text as a single string.
+			- page_level: List of page-level text chunks with metadata including page numbers.
+	"""
 	texts: List[str] = []
 	page_level: List[Dict] = []
 	with pdfplumber.open(path) as pdf:
@@ -77,6 +121,21 @@ def extract_with_pdfplumber(path: str) -> Tuple[str, List[Dict]]:
 
 
 def extract_pdf(path: str) -> Tuple[str, List[Dict]]:
+	"""Extract text from PDF using the best available method.
+	
+	Tries extraction methods in order of preference:
+	1. LayoutLMv3 (layout-aware extraction, if available)
+	2. unstructured library (high-resolution with table structure)
+	3. pdfplumber (fallback method)
+	
+	Args:
+		path: Path to the PDF file.
+		
+	Returns:
+		Tuple of:
+			- full_text: Complete extracted text as a single string.
+			- page_level: List of page-level text chunks with metadata.
+	"""
 	# Try LayoutLMv3 first (layout-aware), then unstructured, then pdfplumber
 	if _LAYOUTLM_AVAILABLE:
 		try:
@@ -93,6 +152,24 @@ def extract_pdf(path: str) -> Tuple[str, List[Dict]]:
 
 
 def build_doc_record(path: str) -> Dict:
+	"""Build a document record from a PDF file path.
+	
+	Extracts text and metadata from a PDF file and creates a structured document record
+	with ID, filename, title, and page-level elements. Text is cleaned during extraction.
+	
+	Args:
+		path: Path to the PDF file.
+		
+	Returns:
+		Dictionary containing:
+			- id: SHA1 hash of the file path
+			- filename: Base filename
+			- title: Filename without extension
+			- authors: None (placeholder)
+			- doi: None (placeholder)
+			- text: Full extracted and cleaned text
+			- pages: List of page-level text chunks with metadata
+	"""
 	filename = os.path.basename(path)
 	doc_id = _sha1(path)
 	full_text, page_elements = extract_pdf(path)
@@ -114,6 +191,22 @@ def build_doc_record(path: str) -> Dict:
 
 
 def chunk_document(doc: Dict, cfg: AppConfig, use_semantic: bool = True) -> List[Dict]:
+	"""Chunk a document into smaller text segments for retrieval.
+	
+	Uses semantic chunking by default, falling back to recursive chunking if semantic
+	chunking fails. Enriches chunks with metadata and page numbers based on text overlap.
+	All chunk text is cleaned during processing.
+	
+	Args:
+		doc: Document dictionary containing 'id', 'title', 'filename', 'text', and 'pages'.
+		cfg: Application configuration for chunking parameters.
+		use_semantic: Whether to attempt semantic chunking first (default: True).
+		
+	Returns:
+		List of chunk dictionaries, each containing:
+			- text: Cleaned chunk text
+			- metadata: Dictionary with doc_id, title, filename, and page_number
+	"""
 	base = {
 		"doc_id": doc["id"],
 		"title": doc["title"],
@@ -169,6 +262,19 @@ def chunk_document(doc: Dict, cfg: AppConfig, use_semantic: bool = True) -> List
 
 
 def save_chunks(doc: Dict, chunks: List[Dict], out_dir: str) -> str:
+	"""Save document chunks to a JSONL file.
+	
+	Each chunk is written as a single JSON object on one line, with the filename
+	based on the document ID.
+	
+	Args:
+		doc: Document dictionary containing 'id' for filename generation.
+		chunks: List of chunk dictionaries to save.
+		out_dir: Output directory path (created if it doesn't exist).
+		
+	Returns:
+		Path to the saved JSONL file.
+	"""
 	os.makedirs(out_dir, exist_ok=True)
 	out_path = os.path.join(out_dir, f"{doc['id']}.jsonl")
 	with open(out_path, "w", encoding="utf-8") as f:
@@ -178,6 +284,17 @@ def save_chunks(doc: Dict, chunks: List[Dict], out_dir: str) -> str:
 
 
 def ingest_directory(cfg: AppConfig) -> List[str]:
+	"""Ingest all PDF files from the configured directory.
+	
+	Processes all PDF files in the configured directory: extracts text, chunks documents,
+	cleans text, and saves chunks to JSONL files in the processed directory.
+	
+	Args:
+		cfg: Application configuration containing paths and chunking settings.
+		
+	Returns:
+		List of output file paths for the processed chunks.
+	"""
 	paths = list_pdf_files(cfg.paths.pdf_dir)
 	logger.info(f"Found {len(paths)} PDFs in {cfg.paths.pdf_dir}")
 	written: List[str] = []

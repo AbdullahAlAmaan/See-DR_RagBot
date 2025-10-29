@@ -11,6 +11,19 @@ SYSTEM_PROMPT = (
 
 
 def build_prompt(query: str, contexts: list[dict]) -> str:
+	"""Build a prompt for the LLM with system instructions and retrieved contexts.
+	
+	Formats the query and retrieved document chunks into a structured prompt that
+	instructs the LLM to answer using only the provided sources with citations.
+	
+	Args:
+		query: The user's question or query.
+		contexts: List of retrieved document chunks, each containing 'text' and 'metadata'.
+		
+	Returns:
+		Complete prompt string ready for LLM input, including system instructions,
+		the question, source contexts with citations, and final instructions.
+	"""
 	from ..ingestion.text_cleaner import clean_chunk_text
 	
 	header = SYSTEM_PROMPT

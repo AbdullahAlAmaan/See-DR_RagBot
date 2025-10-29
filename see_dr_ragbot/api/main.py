@@ -14,11 +14,23 @@ from ..llm.ollama_client import OllamaClient
 
 
 class QueryRequest(BaseModel):
+	"""Request model for querying the RAG system.
+	
+	Attributes:
+		query: The user's question or query string.
+		k: Optional number of top results to retrieve. If None, uses default from config.
+	"""
 	query: str
 	k: int | None = None
 
 
 class QueryResponse(BaseModel):
+	"""Response model containing the generated answer and source citations.
+	
+	Attributes:
+		answer: The generated answer from the LLM.
+		sources: List of retrieved source documents with metadata and text chunks.
+	"""
 	answer: str
 	sources: List[Dict]
 
@@ -28,6 +40,10 @@ app = FastAPI(title="See-DR RAGBot API")
 
 @app.on_event("startup")
 async def on_startup() -> None:
+	"""Initialize FastAPI application on startup.
+	
+	Loads configuration and ensures required directories exist.
+	"""
 	# Preload config and ensure dirs
 	app.state.cfg = load_config()
 	ensure_directories(app.state.cfg)
@@ -35,6 +51,16 @@ async def on_startup() -> None:
 
 @app.post("/ingest")
 async def ingest() -> Dict:
+	"""Ingest PDF documents from the configured directory.
+	
+	Processes all PDFs in the configured directory, extracts text, chunks them,
+	and saves to the processed directory.
+	
+	Returns:
+		Dict containing:
+			- processed_files: Number of files processed
+			- outputs: List of output file paths
+	"""
 	cfg: AppConfig = app.state.cfg
 	written = ingest_directory(cfg)
 	return {"processed_files": len(written), "outputs": written}
@@ -42,6 +68,20 @@ async def ingest() -> Dict:
 
 @app.post("/query", response_model=QueryResponse)
 async def query(req: QueryRequest) -> QueryResponse:
+	"""Process a user query and return an answer with source citations.
+	
+	Retrieves relevant documents from the vector store, builds a prompt with context,
+	generates an answer using the LLM, and returns the answer with cleaned source citations.
+	
+	For treatment-related queries, automatically expands the query with relevant terms
+	to improve retrieval quality.
+	
+	Args:
+		req: QueryRequest containing the user's query and optional k parameter.
+		
+	Returns:
+		QueryResponse with the generated answer and list of source citations.
+	"""
 	from ..ingestion.text_cleaner import clean_chunk_text
 	
 	cfg: AppConfig = app.state.cfg
@@ -71,5 +111,13 @@ async def query(req: QueryRequest) -> QueryResponse:
 
 @app.post("/evaluate")
 async def evaluate(payload: Dict) -> Dict:
+	"""Evaluate retrieval performance (placeholder endpoint).
+	
+	Args:
+		payload: Evaluation payload containing queries and expected results.
+		
+	Returns:
+		Dict with evaluation status. Currently returns placeholder response.
+	"""
 	# Placeholder: later add retrieval precision, etc.
 	return {"status": "ok"}

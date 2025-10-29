@@ -1,7 +1,7 @@
 # CodeRabbit Configuration for See-DR RAGBot
 # Focused on security and code quality reviews
 
-language: python
+language: en
 
 # Review focus areas
 review:

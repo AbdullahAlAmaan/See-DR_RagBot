@@ -220,7 +220,7 @@ else:
 								src_title = m.get("title") or m.get("filename", "")
 								if title == src_title or title in src_title or src_title in title:
 									citation_id = f"cite-new-{i}"
-									link = f'<a href="#{citation_id}" onclick="scrollToCitation(\'{citation_id}\'); return false;" style="text-decoration: none; color: #0066cc; font-size: 0.75em; cursor: pointer; text-decoration: underline;">[{part}]</a>'
+									link = f'<a href="#{citation_id}" onclick="event.preventDefault(); scrollToCitation(\'{citation_id}\'); return false;" style="text-decoration: none; color: #0066cc; font-size: 0.75em; cursor: pointer; text-decoration: underline;">[{part}]</a>'
 									result_parts.append(link)
 									matched = True
 									break

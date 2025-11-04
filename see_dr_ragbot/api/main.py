@@ -62,9 +62,16 @@ async def on_startup() -> None:
 	
 	Loads configuration and ensures required directories exist.
 	"""
-	# Preload config and ensure dirs
-	app.state.cfg = load_config()
-	ensure_directories(app.state.cfg)
+	try:
+		# Preload config and ensure dirs
+		app.state.cfg = load_config()
+		ensure_directories(app.state.cfg)
+	except Exception as e:
+		# Log error but don't crash - allow health check to work
+		import sys
+		print(f"Startup warning: {e}", file=sys.stderr)
+		# Set a default config so the app can still respond
+		app.state.cfg = None
 
 
 @app.get("/health")
@@ -74,7 +81,10 @@ async def health() -> Dict:
 	Returns:
 		Dict with status and timestamp.
 	"""
-	return {"status": "ok", "service": "See-DR RAGBot API"}
+	status = "ok"
+	if app.state.cfg is None:
+		status = "degraded"
+	return {"status": status, "service": "See-DR RAGBot API"}
 
 
 @app.post("/ingest")
@@ -111,6 +121,10 @@ async def query(req: QueryRequest) -> QueryResponse:
 		QueryResponse with the generated answer and list of source citations.
 	"""
 	from ..ingestion.text_cleaner import clean_chunk_text
+	from fastapi import HTTPException
+	
+	if app.state.cfg is None:
+		raise HTTPException(status_code=503, detail="Service not fully initialized. Check logs.")
 	
 	cfg: AppConfig = app.state.cfg
 	index, metadata = load_faiss_index(cfg)

@@ -8,8 +8,8 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false
-      - key: VECTOR_PATH
-        value: vector_store/
+      - key: VECTOR_STORE_DIR
+        value: vector_store
       - key: CORS_ORIGINS
         value: "*"
 

@@ -2,9 +2,11 @@ from __future__ import annotations
 from typing import List, Dict
 import asyncio
 import os
+import sys
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from ..config import load_config, ensure_directories, AppConfig
@@ -56,6 +58,20 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+	"""Global exception handler to catch all unhandled errors."""
+	import traceback
+	error_msg = str(exc)
+	traceback_str = traceback.format_exc()
+	print(f"Unhandled exception: {error_msg}", file=sys.stderr)
+	print(traceback_str, file=sys.stderr)
+	return JSONResponse(
+		status_code=500,
+		content={"error": error_msg, "path": str(request.url)}
+	)
+
+
 @app.on_event("startup")
 async def on_startup() -> None:
 	"""Initialize FastAPI application on startup.
@@ -81,10 +97,14 @@ async def health() -> Dict:
 	Returns:
 		Dict with status and timestamp.
 	"""
-	status = "ok"
-	if app.state.cfg is None:
-		status = "degraded"
-	return {"status": status, "service": "See-DR RAGBot API"}
+	try:
+		status = "ok"
+		if not hasattr(app.state, 'cfg') or app.state.cfg is None:
+			status = "degraded"
+		return {"status": status, "service": "See-DR RAGBot API"}
+	except Exception as e:
+		import traceback
+		return {"status": "error", "service": "See-DR RAGBot API", "error": str(e)}
 
 
 @app.post("/ingest")

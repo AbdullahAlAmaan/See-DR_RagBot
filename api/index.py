@@ -10,6 +10,7 @@ sys.path.insert(0, str(project_root))
 
 # Import the FastAPI app
 from see_dr_ragbot.api.main import app
+from mangum import Mangum
 
-# Export as 'application' - Vercel's Python runtime convention
-application = app
+# Wrap FastAPI app with Mangum for AWS Lambda/Vercel compatibility
+handler = Mangum(app, lifespan="off")

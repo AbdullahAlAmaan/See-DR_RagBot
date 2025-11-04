@@ -18,7 +18,7 @@ const getApiUrl = () => {
   }
   
   // Default to Render backend URL
-  return 'https://see-dr-ragbot-backend.onrender.com';
+  return 'https://see-dr-ragbot.onrender.com';
 };
 
 window.API_URL = getApiUrl();

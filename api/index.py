@@ -13,5 +13,4 @@ sys.path.insert(0, str(project_root))
 from see_dr_ragbot.api.main import app
 
 # Export the app for Vercel
-# Vercel expects the app to be available as 'app'
-__all__ = ['app']
+handler = app

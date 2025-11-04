@@ -49,3 +49,4 @@ See_DR_bot/
 **/pdfs/
 
 # Keep only the built vector store, exclude source PDFs
+.vercel

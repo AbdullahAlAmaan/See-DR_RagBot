@@ -50,3 +50,7 @@ See_DR_bot/
 
 # Keep only the built vector store, exclude source PDFs
 .vercel
+
+# Node.js dependencies
+node_modules/
+package-lock.json

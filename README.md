@@ -38,5 +38,6 @@ streamlit run see_dr_ragbot/ui/app.py
 Edit `config.yaml` to set paths and models. Environment variables in `.env` override YAML for secure local changes.
 
 ## Notes
-- LLM is expected to be available locally via Ollama (e.g., `wizardlm2`, `mistral`, `phi3`).
-- All retrieval and generation stays within the local machine; there are no external API calls.
+- LLM uses Google Gemini API (requires `GEMINI_API_KEY` in `.env` file).
+- Set `API_URL` environment variable to point to your FastAPI backend (defaults to `http://localhost:8000`).
+- For deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).

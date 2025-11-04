@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>See-DR RAGBot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 See-DR RAGBot</h1>
+            <p class="subtitle">Diabetic Retinopathy Research Assistant</p>
+        </header>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <h3>Recent Questions</h3>
+                <div id="history"></div>
+            </aside>
+
+            <main>
+                <div id="newQueryView">
+                    <div class="query-section">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="queryInput" 
+                                placeholder="Ask a question about Diabetic Retinopathy research..."
+                                autocomplete="off"
+                            >
+                            <button id="searchBtn" onclick="handleQuery()">Search</button>
+                        </div>
+                        <div id="loading" class="loading hidden">
+                            <div class="spinner"></div>
+                            <span>Retrieving and generating answer...</span>
+                        </div>
+                    </div>
+
+                    <div id="error" class="error hidden"></div>
+
+                    <div id="answerSection" class="answer-section hidden">
+                        <h2>Answer</h2>
+                        <div id="answer" class="answer-content"></div>
+                        
+                        <div class="citations-section">
+                            <h3>Citations</h3>
+                            <div id="citations"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="expandedView" class="expanded-view hidden">
+                    <div class="expanded-header">
+                        <button class="back-btn" onclick="backToNewQuery()">← Back to New Query</button>
+                        <button class="delete-btn" id="expandedDeleteBtn" onclick="deleteExpandedConversation()">🗑️ Delete this conversation</button>
+                    </div>
+                    <h2>Previous Question & Answer</h2>
+                    <div id="expandedQuestion" class="expanded-question"></div>
+                    <div id="expandedAnswer" class="answer-content"></div>
+                    <div class="citations-section">
+                        <h3>Citations</h3>
+                        <div id="expandedCitations"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

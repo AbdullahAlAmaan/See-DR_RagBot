@@ -1,0 +1,45 @@
+# Files to exclude from Vercel deployment
+# (separate from .gitignore - these are excluded from deployment but can be in git)
+
+# Source PDFs (not needed for deployment)
+See_DR_bot/
+*.pdf
+
+# Development files
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation that's not needed
+*.md
+!README.md
+CHUNKING_GUIDE.md
+DEPLOYMENT.md
+VERCEL_DEPLOYMENT.md
+VERCEL_DEPLOYMENT_GUIDE.md
+
+# Scripts (not needed in serverless)
+scripts/
+eval/
+
+# Test files
+test/
+tests/
+*.test.py
+*_test.py
+
+# Keep vector_store/ for deployment
+# Keep see_dr_ragbot/ for deployment
+# Keep frontend/ for deployment
+# Keep api/ for deployment
+# Keep config.yaml for deployment
+

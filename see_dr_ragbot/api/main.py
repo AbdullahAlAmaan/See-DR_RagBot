@@ -3,6 +3,7 @@ from typing import List, Dict
 import asyncio
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from ..config import load_config, ensure_directories, AppConfig
@@ -10,7 +11,7 @@ from ..ingestion.ingest import ingest_directory
 from ..vector_store.faiss_store import load_faiss_index
 from ..retrieval.retriever import Retriever
 from ..rag.prompt import build_prompt
-from ..llm.ollama_client import OllamaClient
+from ..llm.gemini_client import GeminiClient
 
 
 class QueryRequest(BaseModel):
@@ -36,6 +37,15 @@ class QueryResponse(BaseModel):
 
 
 app = FastAPI(title="See-DR RAGBot API")
+
+# Add CORS middleware for frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
@@ -96,7 +106,7 @@ async def query(req: QueryRequest) -> QueryResponse:
 	
 	top = retriever.retrieve(expanded_query, top_k=req.k)
 	prompt = build_prompt(req.query, top)
-	client = OllamaClient(cfg)
+	client = GeminiClient(cfg)
 	answer = await client.generate(prompt, max_tokens=500)  # Limit answer length
 	
 	# Clean sources for display

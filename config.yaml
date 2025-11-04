@@ -6,7 +6,7 @@ paths:
 models:
   embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
   reranker_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-  llm_model: "wizardlm2"
+  llm_model: "gemini-2.5-flash"
 
 retrieval:
   top_k: 8

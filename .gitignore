@@ -37,7 +37,15 @@ coverage.xml
 
 # Data outputs and indices
 data/processed/
-vector_store/
-*.faiss
-*.jsonl
+# Note: vector_store/ is NOT ignored - needed for Vercel deployment
+# *.faiss  # Commented - vector_store/*.faiss needs to be committed
+# *.jsonl  # Commented - vector_store/*.jsonl needs to be committed
 data/conversations.json
+
+# Raw PDFs (exclude from deployment)
+*.pdf
+See_DR_bot/
+**/raw_pdfs/
+**/pdfs/
+
+# Keep only the built vector store, exclude source PDFs

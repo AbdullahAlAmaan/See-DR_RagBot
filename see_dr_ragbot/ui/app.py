@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import streamlit as st
 import requests
@@ -6,7 +7,7 @@ from pathlib import Path
 
 st.set_page_config(page_title="See-DR RAGBot", layout="wide")
 
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 # Conversation storage file (persistent across sessions)
 CONVERSATION_FILE = Path("data/conversations.json")
@@ -51,6 +52,22 @@ window.scrollToCitation = scrollToCitation;
 """
 st.markdown(SCROLL_SCRIPT, unsafe_allow_html=True)
 
+# Build a concise snippet from a source that best matches the answer
+def best_snippet(answer_text: str, source_text: str, max_len: int = 140) -> str:
+    try:
+        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', source_text) if s.strip()]
+        if not sentences:
+            return (source_text[:max_len] + '...') if len(source_text) > max_len else source_text
+        def score(sent: str) -> float:
+            a = set(re.findall(r"\w+", answer_text.lower()))
+            b = set(re.findall(r"\w+", sent.lower()))
+            u = a | b
+            return len(a & b) / len(u) if u else 0.0
+        best = max(sentences, key=score)
+        return (best[:max_len] + '...') if len(best) > max_len else best
+    except Exception:
+        return (source_text[:max_len] + '...') if len(source_text) > max_len else source_text
+
 # Sidebar with conversation history
 with st.sidebar:
 	st.header("Recent Questions")
@@ -59,19 +76,27 @@ with st.sidebar:
 			qa_id = len(st.session_state.conversation_history) - idx - 1
 			question_text = qa["question"][:80] + "..." if len(qa["question"]) > 80 else qa["question"]
 			
-			if st.button(
-				f"Q: {question_text}",
-				key=f"history_{qa_id}",
-				use_container_width=True,
-			):
-				st.session_state.expanded_qa = qa_id
-				st.rerun()
-		
-		if st.button("🗑️ Clear History", use_container_width=True):
-			st.session_state.conversation_history = []
-			save_conversations([])
-			st.session_state.expanded_qa = None
-			st.rerun()
+			# Create columns for question button and delete button
+			col1, col2 = st.columns([4, 1])
+			with col1:
+				if st.button(
+					f"Q: {question_text}",
+					key=f"history_{qa_id}",
+					use_container_width=True,
+				):
+					st.session_state.expanded_qa = qa_id
+					st.rerun()
+			with col2:
+				if st.button("🗑️", key=f"delete_{qa_id}", help="Delete this conversation"):
+					# Delete the specific conversation
+					del st.session_state.conversation_history[qa_id]
+					save_conversations(st.session_state.conversation_history)
+					if st.session_state.expanded_qa == qa_id:
+						st.session_state.expanded_qa = None
+					elif st.session_state.expanded_qa is not None and st.session_state.expanded_qa > qa_id:
+						# Adjust expanded_qa index if needed
+						st.session_state.expanded_qa -= 1
+					st.rerun()
 	else:
 		st.caption("No previous questions yet")
 
@@ -83,9 +108,19 @@ if st.session_state.expanded_qa is not None:
 	st.markdown("---")
 	st.markdown("### Previous Question & Answer")
 	
-	if st.button("← Back to New Query"):
-		st.session_state.expanded_qa = None
-		st.rerun()
+	# Create columns for back button and delete button
+	back_col, delete_col = st.columns([1, 10])
+	with back_col:
+		if st.button("← Back to New Query"):
+			st.session_state.expanded_qa = None
+			st.rerun()
+	with delete_col:
+		if st.button("🗑️ Delete this conversation", key=f"delete_expanded_{st.session_state.expanded_qa}"):
+			qa_id = st.session_state.expanded_qa
+			del st.session_state.conversation_history[qa_id]
+			save_conversations(st.session_state.conversation_history)
+			st.session_state.expanded_qa = None
+			st.rerun()
 	
 	st.markdown(f"**Question:** {qa['question']}")
 	st.markdown("**Answer:**")
@@ -144,11 +179,8 @@ if st.session_state.expanded_qa is not None:
 		source_text = src.get("text", "")
 		citation_id = f"cite-hist-{st.session_state.expanded_qa}-{i}"
 		
-		# Show only first 2-3 lines (approx 200 chars)
-		preview_lines = source_text.split("\n")[:3]
-		preview_text = "\n".join(preview_lines)
-		if len(preview_text) > 200:
-			preview_text = preview_text[:200] + "..."
+		# Concise snippet most relevant to the answer
+		preview_text = best_snippet(answer, source_text, max_len=140)
 		
 		st.markdown(f'<div id="{citation_id}" style="padding: 10px 0; margin: 5px 0;">', unsafe_allow_html=True)
 		st.markdown(
@@ -264,11 +296,8 @@ else:
 					source_text = src.get("text", "")
 					citation_id = f"cite-new-{i}"
 					
-					# Show only first 2-3 lines (approx 200 chars)
-					preview_lines = source_text.split("\n")[:3]
-					preview_text = "\n".join(preview_lines)
-					if len(preview_text) > 200:
-						preview_text = preview_text[:200] + "..."
+					# Concise snippet most relevant to the answer
+					preview_text = best_snippet(answer, source_text, max_len=140)
 					
 					st.markdown(f'<div id="{citation_id}" style="padding: 10px 0; margin: 5px 0;">', unsafe_allow_html=True)
 					st.markdown(

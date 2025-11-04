@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Dict
 import asyncio
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,7 +41,6 @@ app = FastAPI(title="See-DR RAGBot API")
 
 # Add CORS middleware for frontend access
 # Allow CORS from environment variable or default to all origins
-import os
 cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 if cors_origins == ["*"]:
     allow_origins = ["*"]

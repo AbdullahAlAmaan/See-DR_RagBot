@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
@@ -23,7 +13,8 @@
   "functions": {
     "api/index.py": {
       "memory": 2048,
-      "maxDuration": 300
+      "maxDuration": 300,
+      "runtime": "python3.9"
     }
   }
 }

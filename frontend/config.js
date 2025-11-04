@@ -1,10 +1,25 @@
-// Configuration file - can be customized for different environments
-// In Vercel, you can set environment variables and they'll be injected here
-// For now, this is a simple way to configure the API URL
+// Configuration file - API URL configuration
+// Priority: window.VERCEL_API_URL (set by vercel-env.js) > window.API_URL > default
 
-// Set your API URL here
-// On Vercel, use relative path /api since API routes are handled by the same domain
-// For local development, use http://localhost:8000
-const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-window.API_URL = isProduction ? '/api' : 'http://localhost:8000';
+const getApiUrl = () => {
+  // Check for Vercel-injected environment variable
+  if (typeof window !== 'undefined' && window.VERCEL_API_URL && window.VERCEL_API_URL !== '%API_URL%') {
+    return window.VERCEL_API_URL;
+  }
+  
+  // Check for manually set API_URL
+  if (typeof window !== 'undefined' && window.API_URL) {
+    return window.API_URL;
+  }
+  
+  // For local development
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:8000';
+  }
+  
+  // Default to Render backend URL
+  return 'https://see-dr-ragbot-backend.onrender.com';
+};
+
+window.API_URL = getApiUrl();
 

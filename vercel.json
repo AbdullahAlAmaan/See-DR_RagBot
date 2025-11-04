@@ -1,19 +1,15 @@
 {
   "version": 2,
-  "routes": [
+  "builds": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
+      "src": "frontend/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ],
-  "functions": {
-    "api/index.py": {
-      "memory": 2048,
-      "maxDuration": 300
-    }
-  }
+  ]
 }

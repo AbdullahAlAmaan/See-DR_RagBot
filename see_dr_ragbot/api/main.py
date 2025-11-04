@@ -39,9 +39,17 @@ class QueryResponse(BaseModel):
 app = FastAPI(title="See-DR RAGBot API")
 
 # Add CORS middleware for frontend access
+# Allow CORS from environment variable or default to all origins
+import os
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+if cors_origins == ["*"]:
+    allow_origins = ["*"]
+else:
+    allow_origins = [origin.strip() for origin in cors_origins]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +65,16 @@ async def on_startup() -> None:
 	# Preload config and ensure dirs
 	app.state.cfg = load_config()
 	ensure_directories(app.state.cfg)
+
+
+@app.get("/health")
+async def health() -> Dict:
+	"""Health check endpoint for monitoring.
+	
+	Returns:
+		Dict with status and timestamp.
+	"""
+	return {"status": "ok", "service": "See-DR RAGBot API"}
 
 
 @app.post("/ingest")

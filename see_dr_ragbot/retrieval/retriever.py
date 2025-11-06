@@ -20,18 +20,19 @@ class Retriever:
 	to improve retrieval quality.
 	"""
 	
-	def __init__(self, cfg: AppConfig, index: faiss.Index, metadata: List[Dict]) -> None:
+	def __init__(self, cfg: AppConfig, index: faiss.Index, metadata: List[Dict], embedder: EmbeddingModel | None = None) -> None:
 		"""Initialize the Retriever with configuration, index, and metadata.
 		
 		Args:
 			cfg: Application configuration.
 			index: Pre-built FAISS index containing document embeddings.
 			metadata: List of metadata dictionaries corresponding to index vectors.
+			embedder: Optional preloaded EmbeddingModel. If None, creates a new one.
 		"""
 		self.cfg = cfg
 		self.index = index
 		self.metadata = metadata
-		self.embedder = EmbeddingModel(cfg.models.embedding_model)
+		self.embedder = embedder or EmbeddingModel(cfg.models.embedding_model)
 		self.reranker = CrossEncoder(cfg.models.reranker_model) if _RERANK_AVAILABLE else None
 
 	def retrieve(self, query: str, top_k: int | None = None) -> List[Dict]:

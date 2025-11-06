@@ -76,12 +76,34 @@ async def global_exception_handler(request: Request, exc: Exception):
 async def on_startup() -> None:
 	"""Initialize FastAPI application on startup.
 	
-	Loads configuration and ensures required directories exist.
+	Loads configuration, ensures required directories exist, and preloads models
+	to reduce cold start time on Render free tier.
 	"""
 	try:
 		# Preload config and ensure dirs
 		app.state.cfg = load_config()
 		ensure_directories(app.state.cfg)
+		
+		# Preload models in background to reduce first-request latency
+		# This helps with Render free tier cold starts
+		async def preload_models():
+			try:
+				from ..embeddings.embedding import EmbeddingModel
+				from ..llm.gemini_client import GeminiClient
+				# Preload embedding model (heavy - sentence-transformers, torch)
+				print("Preloading embedding model...", file=sys.stderr)
+				app.state.embedding_model = EmbeddingModel(app.state.cfg.models.embedding_model)
+				print("Embedding model loaded", file=sys.stderr)
+				# Preload Gemini client (lightweight)
+				print("Preloading Gemini client...", file=sys.stderr)
+				app.state.gemini_client = GeminiClient(app.state.cfg)
+				print("Gemini client loaded", file=sys.stderr)
+			except Exception as e:
+				print(f"Model preload warning (will load on first request): {e}", file=sys.stderr)
+		
+		# Start preloading in background (don't await - let it run async)
+		asyncio.create_task(preload_models())
+		
 	except Exception as e:
 		# Log error but don't crash - allow health check to work
 		import sys
@@ -101,7 +123,15 @@ async def health() -> Dict:
 		status = "ok"
 		if not hasattr(app.state, 'cfg') or app.state.cfg is None:
 			status = "degraded"
-		return {"status": status, "service": "See-DR RAGBot API"}
+		models_loaded = {
+			"embedding": hasattr(app.state, 'embedding_model') and app.state.embedding_model is not None,
+			"gemini": hasattr(app.state, 'gemini_client') and app.state.gemini_client is not None
+		}
+		return {
+			"status": status,
+			"service": "See-DR RAGBot API",
+			"models_loaded": models_loaded
+		}
 	except Exception as e:
 		import traceback
 		return {"status": "error", "service": "See-DR RAGBot API", "error": str(e)}
@@ -148,7 +178,13 @@ async def query(req: QueryRequest) -> QueryResponse:
 	
 	cfg: AppConfig = app.state.cfg
 	index, metadata = load_faiss_index(cfg)
-	retriever = Retriever(cfg, index, metadata)
+	
+	# Use preloaded embedding model if available
+	preloaded_embedder = None
+	if hasattr(app.state, 'embedding_model') and app.state.embedding_model is not None:
+		preloaded_embedder = app.state.embedding_model
+	
+	retriever = Retriever(cfg, index, metadata, embedder=preloaded_embedder)
 	
 	# Expand query for treatment-related questions to improve retrieval
 	expanded_query = req.query
@@ -158,7 +194,13 @@ async def query(req: QueryRequest) -> QueryResponse:
 	
 	top = retriever.retrieve(expanded_query, top_k=req.k)
 	prompt = build_prompt(req.query, top)
-	client = GeminiClient(cfg)
+	
+	# Use preloaded Gemini client if available
+	if hasattr(app.state, 'gemini_client') and app.state.gemini_client is not None:
+		client = app.state.gemini_client
+	else:
+		client = GeminiClient(cfg)
+	
 	answer = await client.generate(prompt, max_tokens=500)  # Limit answer length
 	
 	# Clean sources for display

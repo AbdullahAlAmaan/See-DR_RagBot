@@ -81,35 +81,71 @@ async def on_startup() -> None:
 	"""
 	try:
 		# Preload config and ensure dirs
+		print("Loading configuration...", file=sys.stderr)
 		app.state.cfg = load_config()
+		print(f"Config loaded. Vector store dir: {app.state.cfg.paths.vector_store_dir}", file=sys.stderr)
 		ensure_directories(app.state.cfg)
 		
-		# Preload models in background to reduce first-request latency
-		# This helps with Render free tier cold starts
-		async def preload_models():
+		# Check if vector store exists
+		import os
+		index_path = os.path.join(app.state.cfg.paths.vector_store_dir, "index.faiss")
+		meta_path = os.path.join(app.state.cfg.paths.vector_store_dir, "metadata.jsonl")
+		if not os.path.exists(index_path) or not os.path.exists(meta_path):
+			print(f"WARNING: Vector store not found at {app.state.cfg.paths.vector_store_dir}", file=sys.stderr)
+			print(f"  Looking for: {index_path} and {meta_path}", file=sys.stderr)
+		else:
+			print(f"Vector store found at {app.state.cfg.paths.vector_store_dir}", file=sys.stderr)
+		
+		# Check for API key
+		api_key = os.getenv("GEMINI_API_KEY")
+		if not api_key:
+			print("WARNING: GEMINI_API_KEY not set in environment", file=sys.stderr)
+		else:
+			print("GEMINI_API_KEY found in environment", file=sys.stderr)
+		
+		# Preload only lightweight Gemini client (not embedding model to save memory)
+		# Embedding model will be lazy-loaded on first request to avoid memory issues on free tier
+		async def preload_gemini():
 			try:
-				from ..embeddings.embedding import EmbeddingModel
 				from ..llm.gemini_client import GeminiClient
-				# Preload embedding model (heavy - sentence-transformers, torch)
-				print("Preloading embedding model...", file=sys.stderr)
-				app.state.embedding_model = EmbeddingModel(app.state.cfg.models.embedding_model)
-				print("Embedding model loaded", file=sys.stderr)
-				# Preload Gemini client (lightweight)
 				print("Preloading Gemini client...", file=sys.stderr)
 				app.state.gemini_client = GeminiClient(app.state.cfg)
 				print("Gemini client loaded", file=sys.stderr)
 			except Exception as e:
-				print(f"Model preload warning (will load on first request): {e}", file=sys.stderr)
+				import traceback
+				print(f"Gemini client preload warning (will load on first request): {e}", file=sys.stderr)
+				print(traceback.format_exc(), file=sys.stderr)
 		
-		# Start preloading in background (don't await - let it run async)
-		asyncio.create_task(preload_models())
+		# Start preloading Gemini client in background (don't await - let it run async)
+		asyncio.create_task(preload_gemini())
+		
+		# Note: Embedding model is NOT preloaded to save memory on Render free tier
+		# It will be loaded on first query request (lazy loading)
+		app.state.embedding_model = None
 		
 	except Exception as e:
 		# Log error but don't crash - allow health check to work
-		import sys
-		print(f"Startup warning: {e}", file=sys.stderr)
+		import traceback
+		print(f"CRITICAL: Startup error: {e}", file=sys.stderr)
+		print(traceback.format_exc(), file=sys.stderr)
 		# Set a default config so the app can still respond
 		app.state.cfg = None
+
+
+@app.get("/")
+async def root() -> Dict:
+	"""Root endpoint providing API information."""
+	return {
+		"service": "See-DR RAGBot API",
+		"version": "1.0.0",
+		"endpoints": {
+			"health": "/health",
+			"query": "/query (POST)",
+			"ingest": "/ingest (POST)",
+			"docs": "/docs",
+			"openapi": "/openapi.json"
+		}
+	}
 
 
 @app.get("/health")
@@ -172,14 +208,32 @@ async def query(req: QueryRequest) -> QueryResponse:
 	"""
 	from ..ingestion.text_cleaner import clean_chunk_text
 	from fastapi import HTTPException
+	import os
 	
 	if app.state.cfg is None:
-		raise HTTPException(status_code=503, detail="Service not fully initialized. Check logs.")
+		raise HTTPException(status_code=503, detail="Service not fully initialized. Check logs for startup errors.")
 	
 	cfg: AppConfig = app.state.cfg
-	index, metadata = load_faiss_index(cfg)
 	
-	# Use preloaded embedding model if available
+	# Check if vector store exists before trying to load
+	index_path = os.path.join(cfg.paths.vector_store_dir, "index.faiss")
+	meta_path = os.path.join(cfg.paths.vector_store_dir, "metadata.jsonl")
+	if not os.path.exists(index_path) or not os.path.exists(meta_path):
+		raise HTTPException(
+			status_code=503,
+			detail=f"Vector store not found. Expected files at {index_path} and {meta_path}. Please ensure the vector store is built and deployed."
+		)
+	
+	try:
+		index, metadata = load_faiss_index(cfg)
+	except Exception as e:
+		raise HTTPException(
+			status_code=500,
+			detail=f"Failed to load vector store: {str(e)}"
+		)
+	
+	# Use preloaded embedding model if available, otherwise Retriever will lazy-load it
+	# (Lazy loading saves memory on Render free tier)
 	preloaded_embedder = None
 	if hasattr(app.state, 'embedding_model') and app.state.embedding_model is not None:
 		preloaded_embedder = app.state.embedding_model

@@ -89,7 +89,19 @@ def load_config(path: str | None = None) -> AppConfig:
 	data = _read_yaml(cfg_path)
 	data = _env_override(data)
 
-	paths = PathsConfig(**data["paths"])  # type: ignore[arg-type]
+	# Resolve paths relative to config file location (project root)
+	config_dir = os.path.dirname(os.path.abspath(cfg_path))
+	paths_data = data["paths"].copy()
+	
+	# Only resolve relative paths (not absolute paths)
+	if not os.path.isabs(paths_data.get("pdf_dir", "")):
+		paths_data["pdf_dir"] = os.path.join(config_dir, paths_data.get("pdf_dir", ""))
+	if not os.path.isabs(paths_data.get("processed_dir", "")):
+		paths_data["processed_dir"] = os.path.join(config_dir, paths_data.get("processed_dir", ""))
+	if not os.path.isabs(paths_data.get("vector_store_dir", "")):
+		paths_data["vector_store_dir"] = os.path.join(config_dir, paths_data.get("vector_store_dir", ""))
+
+	paths = PathsConfig(**paths_data)  # type: ignore[arg-type]
 	models = ModelsConfig(**data["models"])  # type: ignore[arg-type]
 	retrieval = RetrievalConfig(**data["retrieval"])  # type: ignore[arg-type]
 	chunking = ChunkingConfig(**data["chunking"])  # type: ignore[arg-type]

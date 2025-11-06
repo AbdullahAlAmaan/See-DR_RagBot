@@ -33,7 +33,9 @@ class Retriever:
 		self.index = index
 		self.metadata = metadata
 		self.embedder = embedder or EmbeddingModel(cfg.models.embedding_model)
-		self.reranker = CrossEncoder(cfg.models.reranker_model) if _RERANK_AVAILABLE else None
+		# Lazy-load reranker only when needed to save memory
+		self._reranker = None
+		self._reranker_model_name = cfg.models.reranker_model if _RERANK_AVAILABLE else None
 
 	def retrieve(self, query: str, top_k: int | None = None) -> List[Dict]:
 		"""Retrieve top-k relevant documents for a given query.
@@ -78,10 +80,12 @@ class Retriever:
 		
 		cands = [self.metadata[i] for i in cand_ids]
 
-		# Optional reranking for better relevance
-		if self.reranker is not None and len(cands) > k:
+		# Optional reranking for better relevance (lazy-loaded to save memory)
+		if self._reranker_model_name is not None and len(cands) > k:
+			if self._reranker is None:
+				self._reranker = CrossEncoder(self._reranker_model_name)
 			pairs = [(query, c.get("text", "")) for c in cands]
-			scores = self.reranker.predict(pairs).tolist()
+			scores = self._reranker.predict(pairs).tolist()
 			scored = sorted(zip(cands, scores), key=lambda x: x[1], reverse=True)
 			# Return top k after reranking
 			return [c for c, _ in scored[:k]]

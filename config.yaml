@@ -1,7 +1,7 @@
 paths:
-  pdf_dir: "/Users/abdullahalamaan/Documents/GitHub/See-DR_RagBot/See_DR_bot"
+  pdf_dir: "See_DR_bot"  # Relative path - PDFs not needed on Render (vector store is pre-built)
   processed_dir: "data/processed"
-  vector_store_dir: "vector_store"
+  vector_store_dir: "vector_store"  # Can be overridden by VECTOR_STORE_DIR env var
 
 models:
   embedding_model: "sentence-transformers/all-MiniLM-L6-v2"

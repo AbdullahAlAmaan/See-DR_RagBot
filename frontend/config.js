@@ -17,8 +17,8 @@ const getApiUrl = () => {
     return 'http://localhost:8000';
   }
   
-  // Default to Render backend URL
-  return 'https://see-dr-ragbot.onrender.com';
+  // Default to Hugging Face backend URL
+  return 'https://aaamaan-see-dr-ragbot.hf.space';
 };
 
 window.API_URL = getApiUrl();
